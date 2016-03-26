@@ -1,6 +1,7 @@
 import csv
-from models import Stop, Route, Base
-from sqlalchemy import create_engine
+import datetime
+from models import Stop, Route, RouteFrequency, Base
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
 """
@@ -27,7 +28,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # TABLE stops
-# (1) Parse stops.txt
+# (1) stops.txt
 stop_table = []
 with open("../{0}/stops.txt".format(GTFS_FOLDER)) as stops_file:
     stops = csv.reader(stops_file)
@@ -43,7 +44,7 @@ with open("../{0}/stops.txt".format(GTFS_FOLDER)) as stops_file:
 session.add_all(stop_table)
 
 # TABLE routes
-# (1) Parse trips.txt
+# (1) trips.txt
 route_table = []
 with open("../{0}/trips.txt".format(GTFS_FOLDER)) as trips_file:
     trips = csv.reader(trips_file)
@@ -54,16 +55,42 @@ with open("../{0}/trips.txt".format(GTFS_FOLDER)) as trips_file:
                 None,
                 None,
                 trip[-1],
-                trip[0]
+                trip[0],
+                trip[1]
             ))
 session.add_all(route_table)
-# (2) Parse routes.txt
+# (2) routes.txt
 with open("../{0}/routes.txt".format(GTFS_FOLDER)) as routes_file:
     routes = csv.reader(routes_file)
     for route in routes:
         for row in session.query(Route).filter(Route.route_id == route[-1]):
             row.name = route[2]
             row.description = route[3]
+
+# TABLE frequencies
+# (1) frequencies.txt
+with open("../{0}/frequencies.txt".format(GTFS_FOLDER)) as frequencies_file:
+    frequencies = csv.reader(frequencies_file)
+    for frequency in frequencies:
+        for row in session.query(Route).filter(Route.trip_id == frequency[0]):
+            row.frequency = RouteFrequency(
+                datetime.datetime.strptime(frequency[1], '%H:%M:%S').time(),
+                datetime.datetime.strptime(frequency[2], '%H:%M:%S').time(),
+                int(frequency[3]),
+                None, None, None, None, None, None, None
+            )
+# (2) calendar.txt
+with open("../{0}/calendar.txt".format(GTFS_FOLDER)) as calendar_file:
+    calendars = csv.reader(calendar_file)
+    for calendar in calendars:
+        for row in session.query(Route).filter(Route.service_id == calendar[0]):
+            row.frequency.mon = bool(int(calendar[1]))
+            row.frequency.tue = bool(int(calendar[2]))
+            row.frequency.wed = bool(int(calendar[3]))
+            row.frequency.thu = bool(int(calendar[4]))
+            row.frequency.fri = bool(int(calendar[5]))
+            row.frequency.sat = bool(int(calendar[6]))
+            row.frequency.sun = bool(int(calendar[7]))
 
 session.commit()
 session.close()

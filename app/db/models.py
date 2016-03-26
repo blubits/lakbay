@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Boolean, Column, Integer, String, Float, Time, ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 """
 Models for the Network class.
@@ -16,7 +18,7 @@ Base = declarative_base()
 class Stop(Base):
     __tablename__ = "stops"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     stop_id = Column(String, index=True, unique=True)
     name = Column(String)
     lat = Column(Float)
@@ -49,13 +51,17 @@ class Stop(Base):
 class Route(Base):
     __tablename__ = "routes"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     trip_id = Column(String, index=True, unique=True)
     route_id = Column(String, index=True)
+    service_id = Column(String, index=True)
     name = Column(String)
     description = Column(String)
 
-    def __init__(self, name, description, trip_id, route_id):
+    frequency = relationship("RouteFrequency", uselist=False,
+        back_populates="route")
+
+    def __init__(self, name, description, trip_id, route_id, service_id):
         """
         Constructs a transport network route.
 
@@ -66,11 +72,14 @@ class Route(Base):
                 in gtfs/routes.txt.
             trip_id (str): Trip ID. Column "trip_id" in gtfs/trips.txt.
             route_id (str): Route ID. Column "route_id" in gtfs/trips.txt.
+            service_id (str): Service ID. Column "service_id" in
+                gtfs/trips.txt.
         """
         self.name = name
         self.description = description
         self.trip_id = trip_id
         self.route_id = route_id
+        self.service_id = service_id
 
     def __repr__(self):
         """
@@ -78,8 +87,55 @@ class Route(Base):
         """
         return "<Route {0} ({1}/{2})>".format(id, route_id, trip_id)
 
-#class RouteFrequency(Base):
-#    __tablename__ = "frequencies"
+class RouteFrequency(Base):
+    __tablename__ = "frequencies"
 
-#class RouteStops(Base):
-#    __tablename__ = "route_stops"
+    route_id = Column(Integer, ForeignKey('routes.id'),
+        index=True, primary_key=True)
+    start = Column(Time)
+    end = Column(Time)
+    headway = Column(Integer)
+    mon = Column(Boolean)
+    tue = Column(Boolean)
+    wed = Column(Boolean)
+    thu = Column(Boolean)
+    fri = Column(Boolean)
+    sat = Column(Boolean)
+    sun = Column(Boolean)
+
+    route = relationship("Route", back_populates="frequency")
+
+    def __init__(self, start, end, headway,
+        mon, tue, wed, thu, fri, sat, sun):
+        """
+        Constructs a frequency table for a transport network route.
+
+        Args:
+            start (datetime.time): Time when the route's service starts.
+                Column "start_time" in gtfs/frequencies.txt.
+            end (datetime.time): Time when the route's service stops.
+                Column "end_time" in gtfs/frequencies.txt.
+            headway (int): Approximate time between arrivals, in seconds.
+                Column "headway_secs" in gtfs/frequencies.txt.
+            mon (bool), tue (bool), wed (bool), thu (bool), fri (bool),
+            sat (bool), sun (bool): Whether the route is available
+                that day. Columns "monday" to "sunday" in gtfs/calendar.txt.
+        """
+        self.start = start
+        self.end = end
+        self.headway = headway
+        self.mon = mon
+        self.tue = tue
+        self.wed = wed
+        self.thu = thu
+        self.fri = fri
+        self.sat = sat
+        self.sun = sun
+
+    def __repr__(self):
+        """
+        Returns repr(self).
+        """
+        return "<RouteFrequency {0} (<Route {1}>)>".format(id, route_id)
+
+
