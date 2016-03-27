@@ -87,10 +87,46 @@ class Route(Base):
         """
         return "<Route {0} ({1}/{2})>".format(id, route_id, trip_id)
 
+class Edge(Base):
+    __tablename__ = "graph"
+
+    id = Column(Integer, primary_key=True)
+    stop_from_id = Column(Integer, ForeignKey("stops.id"))
+    stop_to_id = Column(Integer, ForeignKey("stops.id"))
+    route_id = Column(Integer, ForeignKey("routes.id"))
+    sequence_id = Column(Integer)
+    length = Column(Integer)
+
+    stop_to = relationship("Stop", foreign_keys=[stop_to_id], uselist=False)
+    stop_from = relationship("Stop", foreign_keys=[stop_from_id], uselist=False)
+    route = relationship("Route", uselist=False)
+
+    def __init__(self, stop_from, stop_to, route, sequence_id, length):
+        """
+        Constructs an edge in the transport network graph.
+
+        Args:
+            stop_from (Stop): Origin stop of edge.
+            stop_to (Stop): Destination stop of edge.
+            route (Route): Route associated with edge.
+            sequence_id (int): Sequence ID.
+            length (int): Length of edge.
+        """
+        self.stop_from = stop_from
+        self.stop_to = stop_to
+        self.route = route
+        self.sequence_id = sequence_id
+        self.length = length
+
+    def __repr__(self):
+        return "<Edge {0}->{1} ({2}), length {3}>".format(
+            stop_to_id, stop_from_id, route_id, length)
+
+
 class RouteFrequency(Base):
     __tablename__ = "frequencies"
 
-    route_id = Column(Integer, ForeignKey('routes.id'),
+    id = Column(Integer, ForeignKey('routes.id'),
         index=True, primary_key=True)
     start = Column(Time)
     end = Column(Time)
