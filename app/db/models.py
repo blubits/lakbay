@@ -1,5 +1,4 @@
 from sqlalchemy import Boolean, Column, Integer, String, Float, Time, ForeignKey
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -10,7 +9,7 @@ This is a replacement of a bulk of the functionality present in the transport
 network classes in Lakbay v1.0.
 
 :Author:     Maded Batara III
-:Version:    v1.0dev (2016-03-24)
+:Version:    v1.0 (2016-03-24)
 """
 
 Base = declarative_base()
@@ -46,7 +45,7 @@ class Stop(Base):
         """
         Returns repr(self).
         """
-        return "<Stop {0} ({1}, {2})>".format(name, lat, lng)
+        return "<Stop {0} ({1}, {2})>".format(self.name, self.lat, self.long)
 
 class Route(Base):
     __tablename__ = "routes"
@@ -85,7 +84,8 @@ class Route(Base):
         """
         Returns repr(self).
         """
-        return "<Route {0} ({1}/{2})>".format(id, route_id, trip_id)
+        return "<Route {0} ({1}/{2})>".format(
+            self.id, self.route_id, self.trip_id)
 
 class Edge(Base):
     __tablename__ = "graph"
@@ -120,8 +120,7 @@ class Edge(Base):
 
     def __repr__(self):
         return "<Edge {0}->{1} ({2}), length {3}>".format(
-            stop_to_id, stop_from_id, route_id, length)
-
+            self.stop_to_id, self.stop_from_id, self.route_id, self.length)
 
 class RouteFrequency(Base):
     __tablename__ = "frequencies"
@@ -172,6 +171,7 @@ class RouteFrequency(Base):
         """
         Returns repr(self).
         """
-        return "<RouteFrequency {0} (<Route {1}>)>".format(id, route_id)
+        return "<RouteFrequency {0} (<Route {1}>)>".format(
+            self.id, self.route_id)
 
 

@@ -3,7 +3,6 @@ import datetime
 from models import Stop, Route, RouteFrequency, Edge, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from time import perf_counter
 
 """
 Database creator from the GTFS class.
@@ -16,14 +15,11 @@ This is a replacement of network.py in Lakbay v1.0. Some parts of the code
 have been adapted from the aformentioned file.
 
 :Author:     Maded Batara III
-:Version:    v1.0dev (2016-03-25)
+:Version:    v1.0 (2016-03-25)
 """
 
 # Folder containing GTFS files
 GTFS_FOLDER = "data/gtfs-sakay"
-
-# Start time tracking
-start = perf_counter()
 
 # Create engine and session
 engine = create_engine('sqlite:///app.db')
@@ -70,6 +66,14 @@ with open("../{0}/routes.txt".format(GTFS_FOLDER)) as routes_file:
         for row in session.query(Route).filter(Route.route_id == route[-1]):
             row.name = route[2]
             row.description = route[3]
+# (3) Walking
+session.add(Route(
+    "Walking",
+    "A general-purpose route for walking.",
+    "000001",
+    "ROUTE_WALKING",
+    "000001"
+))
 
 # TABLE frequencies
 # (1) frequencies.txt
@@ -120,6 +124,3 @@ session.add_all(graph_table)
 # Close connection
 session.commit()
 session.close()
-
-# End time tracking
-end = perf_counter()
