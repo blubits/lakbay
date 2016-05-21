@@ -1,5 +1,5 @@
 from db.traffic_constants import WEIGHTS
-from db.traffic_models import Base, EdgeTraffic, TrafficSituation
+from db.traffic_models import Base, EdgeTraffic
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -60,4 +60,3 @@ class Traffic:
             return WEIGHTS[self.edges[edge_tuple]]
         except KeyError:
             return 1    # No change
-

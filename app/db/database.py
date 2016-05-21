@@ -91,7 +91,8 @@ with open("../{0}/frequencies.txt".format(GTFS_FOLDER)) as frequencies_file:
 with open("../{0}/calendar.txt".format(GTFS_FOLDER)) as calendar_file:
     calendars = csv.reader(calendar_file)
     for calendar in calendars:
-        for row in session.query(Route).filter(Route.service_id == calendar[0]):
+        for row in session.query(Route).filter(
+                   Route.service_id == calendar[0]):
             row.frequency.mon = bool(int(calendar[1]))
             row.frequency.tue = bool(int(calendar[2]))
             row.frequency.wed = bool(int(calendar[3]))
@@ -112,11 +113,14 @@ with open("../{0}/stop_times.txt".format(GTFS_FOLDER)) as stop_times_file:
                 current[3], '%H:%M:%S') - datetime.datetime.strptime(
                 previous[4], '%H:%M:%S')
             graph_table.append(Edge(
-               session.query(Stop).filter(Stop.stop_id == previous[2]).first(),
-               session.query(Stop).filter(Stop.stop_id == current[2]).first(),
-               session.query(Route).filter(Route.trip_id == current[0]).first(),
-               int(previous[1]),
-               int(time_delta.total_seconds())
+                session.query(Stop).filter(
+                    Stop.stop_id == previous[2]).first(),
+                session.query(Stop).filter(
+                    Stop.stop_id == current[2]).first(),
+                session.query(Route).filter(
+                    Route.trip_id == current[0]).first(),
+                int(previous[1]),
+                int(time_delta.total_seconds())
             ))
         previous = current
 session.add_all(graph_table)

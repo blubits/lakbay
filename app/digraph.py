@@ -85,8 +85,8 @@ class Digraph:
         Args:
             edge (DirectedEdge): Edge to be added to the graph.
         """
-        if not (0 <= edge.vertex_from < self._num_vertices and
-                0 <= edge.vertex_to < self._num_vertices):
+        if not (1 <= edge.vertex_from <= self._num_vertices and
+                1 <= edge.vertex_to <= self._num_vertices):
             raise ValueError("Vertex not in graph")
         self._graph[edge.vertex_from].add(edge)
         self._num_edges += 1
@@ -99,8 +99,8 @@ class Digraph:
             frm (int): Source vertex.
             to (int): Destination vertex.
         """
-        if not (0 <= frm < self._num_vertices and
-                0 <= to < self._num_vertices):
+        if not (1 <= frm <= self._num_vertices and
+                1 <= to <= self._num_vertices):
             raise ValueError("Vertex not in graph")
         return [edge for edge in self.outgoing(frm) if edge.vertex_to == to]
 
@@ -112,8 +112,8 @@ class Digraph:
             frm (int): Source vertex.
             to (int): Destination vertex.
         """
-        if not (0 <= frm < self._num_vertices and
-                0 <= to < self._num_vertices):
+        if not (1 <= frm <= self._num_vertices and
+                1 <= to <= self._num_vertices):
             raise ValueError("Vertex not in graph")
         for edge in self.outgoing(frm):
             if edge.vertex_to == to:

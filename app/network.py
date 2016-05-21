@@ -1,4 +1,3 @@
-import csv
 from db.models import Stop, Route, RouteFrequency, Edge, Base
 from digraph import Digraph, DirectedEdge
 from sqlalchemy import create_engine
@@ -66,7 +65,7 @@ class Network:
         """
         List of routes in the transport network. SQLAlchemy query object.
         """
-        return session.query(Route)
+        return self.session.query(Route)
 
     @property
     def graph(self):

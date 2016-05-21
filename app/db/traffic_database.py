@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import datetime
@@ -6,7 +7,7 @@ import requests
 from network import Network
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from traffic_constants import AREAS, PLACES, TRAFFIC_ROOT, WEIGHTS
+from traffic_constants import PLACES, TRAFFIC_ROOT
 from traffic_models import Base, EdgeTraffic, TrafficSituation
 
 """
@@ -77,36 +78,36 @@ def generate_edges(node_list):
     return edges
 
 # TABLE traffic
-# traffic_table = []
-# for i in range(1, 11):
-#     try:
-#         traffic_file = requests.get("{0}/{1}/".format(TRAFFIC_ROOT, i))
-#         traffic_file.encoding = "utf-8-sig"
-#         traffic_json = traffic_file.json()
-#         for line in traffic_json["lines"]:
-#             for direction, situation in line["status"].items():
-#                 traffic_table.append(TrafficSituation(
-#                     traffic_json["area"]["area_id"],
-#                     line["line_order"],
-#                     direction,
-#                     situation["status"],
-#                     datetime.datetime.strptime(
-#                         line["last_updated"], '%I:%M %p').time()
-#                 ))
-#     except (ConnectionResetError, requests.exceptions.ConnectionError):
-#         raise RuntimeError("Can't connect to {0}/{1}/, check your "
-#                            "internet connection?".format(
-#                                TRAFFIC_ROOT, i))
-#session.add_all(traffic_table)
+traffic_table = []
+for i in range(1, 11):
+    try:
+        traffic_file = requests.get("{0}/{1}/".format(TRAFFIC_ROOT, i))
+        traffic_file.encoding = "utf-8-sig"
+        traffic_json = traffic_file.json()
+        for line in traffic_json["lines"]:
+            for direction, situation in line["status"].items():
+                traffic_table.append(TrafficSituation(
+                    traffic_json["area"]["area_id"],
+                    line["line_order"],
+                    direction,
+                    situation["status"],
+                    datetime.datetime.strptime(
+                        line["last_updated"], '%I:%M %p').time()
+                ))
+    except (ConnectionResetError, requests.exceptions.ConnectionError):
+        raise RuntimeError("Can't connect to {0}/{1}/, check your "
+                           "internet connection?".format(
+                               TRAFFIC_ROOT, i))
+session.add_all(traffic_table)
 
 # TABLE edges
 edges_table = []
 with Network("sqlite:///app.db") as network:
     for edge, traffic in parse_places(PLACES, network.graph).items():
         for row in session.query(TrafficSituation).filter(
-          TrafficSituation.area_id == int(traffic[0]),
-          TrafficSituation.line_id == int(traffic[1]),
-          TrafficSituation.direction == traffic[2]):
+                   TrafficSituation.area_id == int(traffic[0]),
+                   TrafficSituation.line_id == int(traffic[1]),
+                   TrafficSituation.direction == traffic[2]):
             edges_table.append(EdgeTraffic(int(edge[0]), int(edge[1]), row))
 session.add_all(edges_table)
 

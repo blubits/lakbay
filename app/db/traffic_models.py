@@ -29,8 +29,8 @@ class TrafficSituation(Base):
             area_id (int): Area ID. "area" > "area_id" in JSON.
             line_id (int): Line ID within the area. "lines" > "line_order"
                 in JSON.
-            direction (str): Direction of cars in the area, either "north_bound"
-                or "south_bound".
+            direction (str): Direction of cars in the area, either
+                "north_bound" or "south_bound".
             status (str): Density of traffic in the area.
             updated_time (datetime.time): Time of information's last update.
         """

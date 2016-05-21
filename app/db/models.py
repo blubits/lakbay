@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, Column, Integer, String, Float, Time, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, Float, Time, \
+    ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -58,7 +59,7 @@ class Route(Base):
     description = Column(String)
 
     frequency = relationship("RouteFrequency", uselist=False,
-        back_populates="route")
+                             back_populates="route")
 
     def __init__(self, name, description, trip_id, route_id, service_id):
         """
@@ -91,14 +92,15 @@ class Edge(Base):
     __tablename__ = "graph"
 
     id = Column(Integer, primary_key=True)
-    stop_from_id = Column(Integer, ForeignKey("stops.id"))
-    stop_to_id = Column(Integer, ForeignKey("stops.id"))
+    stop_from_id = Column(Integer, ForeignKey("stops.id"), index=True)
+    stop_to_id = Column(Integer, ForeignKey("stops.id"), index=True)
     route_id = Column(Integer, ForeignKey("routes.id"))
-    sequence_id = Column(Integer)
+    sequence_id = Column(Integer, index=True)
     length = Column(Integer)
 
     stop_to = relationship("Stop", foreign_keys=[stop_to_id], uselist=False)
-    stop_from = relationship("Stop", foreign_keys=[stop_from_id], uselist=False)
+    stop_from = relationship("Stop", foreign_keys=[stop_from_id],
+                             uselist=False)
     route = relationship("Route", uselist=False)
 
     def __init__(self, stop_from, stop_to, route, sequence_id, length):
@@ -119,14 +121,18 @@ class Edge(Base):
         self.length = length
 
     def __repr__(self):
-        return "<Edge {0}->{1} ({2}), length {3}>".format(
-            self.stop_to_id, self.stop_from_id, self.route_id, self.length)
+        """
+        Returns repr(self).
+        """
+        return "<Edge {0}->{1} ({2}.{3}), length {4}>".format(
+            self.stop_to_id, self.stop_from_id, self.route_id,
+            self.sequence_id, self.length)
 
 class RouteFrequency(Base):
     __tablename__ = "frequencies"
 
     id = Column(Integer, ForeignKey('routes.id'),
-        index=True, primary_key=True)
+                index=True, primary_key=True)
     start = Column(Time)
     end = Column(Time)
     headway = Column(Integer)
@@ -141,7 +147,7 @@ class RouteFrequency(Base):
     route = relationship("Route", back_populates="frequency")
 
     def __init__(self, start, end, headway,
-        mon, tue, wed, thu, fri, sat, sun):
+                 mon, tue, wed, thu, fri, sat, sun):
         """
         Constructs a frequency table for a transport network route.
 
@@ -173,5 +179,3 @@ class RouteFrequency(Base):
         """
         return "<RouteFrequency {0} (<Route {1}>)>".format(
             self.id, self.route_id)
-
-
