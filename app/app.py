@@ -5,7 +5,8 @@ The Lakbay app in Flask.
 :Version:    v2.0dev (2016-03-24)
 """
 
-from flask import Flask, render_template
+from flask import Flask
+from flask import render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)

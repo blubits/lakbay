@@ -1,5 +1,6 @@
 from db.traffic_constants import WEIGHTS
-from db.traffic_models import Base, EdgeTraffic
+from db.traffic_models import Base
+from db.traffic_models import EdgeTraffic
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

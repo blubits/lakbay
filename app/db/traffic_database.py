@@ -4,11 +4,15 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import datetime
 import requests
+
 from network import Network
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from traffic_constants import PLACES, TRAFFIC_ROOT
-from traffic_models import Base, EdgeTraffic, TrafficSituation
+from traffic_constants import PLACES
+from traffic_constants import TRAFFIC_ROOT
+from traffic_models import Base
+from traffic_models import EdgeTraffic
+from traffic_models import TrafficSituation
 
 """
 Database creator for the Traffic class.

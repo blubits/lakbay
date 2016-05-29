@@ -1,4 +1,5 @@
-from db.models import Route, Stop
+from db.models import Route
+from db.models import Stop
 
 """
 A human-readable format for a series of routes that

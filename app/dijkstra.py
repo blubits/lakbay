@@ -1,4 +1,5 @@
-from heapq import heappop, heapify
+from heapq import heapify
+from heapq import heappop
 
 """
 Looks for a shortest path between two nodes in a weighted graph
@@ -10,7 +11,7 @@ using Dijkstra's algorithm.
 
 def shortest_path(graph, src, dest, modifiers):
     """
-    Computes the shortest possible path from a source vertex to a destination
+    Computes the shortest possible path from a souremrce vertex to a destination
     vertex in a graph.
 
     Args:
